@@ -113,12 +113,12 @@ class _TagWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const possibleColors = Colors.primaries;
-    final color = possibleColors[Random().nextInt(possibleColors.length)];
+    final tagColor = possibleColors[tag.label.hashCode % possibleColors.length];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Chip(
-        color: MaterialStateProperty.all(color),
+        backgroundColor: tagColor,
         label: Text(tag.label),
       ),
     );
