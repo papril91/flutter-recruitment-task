@@ -1,15 +1,16 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_recruitment_task/models/products_page.dart';
-import 'package:flutter_recruitment_task/presentation/pages/home_page/home_cubit.dart';
+import 'package:flutter_recruitment_task/presentation/pages/home_page/bloc/home_cubit.dart';
+import 'package:flutter_recruitment_task/presentation/pages/home_page/bloc/home_state.dart';
 import 'package:flutter_recruitment_task/presentation/widgets/big_text.dart';
+import 'package:flutter_recruitment_task/presentation/widgets/product_card.dart';
 
 const _mainPadding = EdgeInsets.all(16.0);
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.scrollToProductId});
+
+  final int? scrollToProductId;
 
   @override
   Widget build(BuildContext context) {
@@ -19,14 +20,19 @@ class HomePage extends StatelessWidget {
       ),
       body: Padding(
         padding: _mainPadding,
-        child: BlocBuilder<HomeCubit, HomeState>(
-          builder: (context, state) {
-            return switch (state) {
-              Error() => BigText('Error: ${state.error}'),
-              Loading() => const BigText('Loading...'),
-              Loaded() => _LoadedWidget(state: state),
-            };
+        child: BlocListener<HomeCubit, HomeState>(
+          listener: (context, state) {
+            // tutaj dodam metode do scrolla i filtry
           },
+          child: BlocBuilder<HomeCubit, HomeState>(
+            builder: (context, state) {
+              return state.map(
+                  loading: (state) =>
+                      const Center(child: CircularProgressIndicator()),
+                  loaded: (state) => _LoadedWidget(state: state),
+                  error: (error) => BigText('Error: ${error.errorMessage}'));
+            },
+          ),
         ),
       ),
     );
@@ -38,7 +44,7 @@ class _LoadedWidget extends StatelessWidget {
     required this.state,
   });
 
-  final Loaded state;
+  final HomeStateLoaded state;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +60,7 @@ class _LoadedWidget extends StatelessWidget {
 class _ProductsSliverList extends StatelessWidget {
   const _ProductsSliverList({required this.state});
 
-  final Loaded state;
+  final HomeStateLoaded state;
 
   @override
   Widget build(BuildContext context) {
@@ -65,62 +71,13 @@ class _ProductsSliverList extends StatelessWidget {
 
     return SliverList.separated(
       itemCount: products.length,
-      itemBuilder: (context, index) => _ProductCard(products[index]),
+      itemBuilder: (context, index) {
+        return ProductCard(
+          product: products[index],
+          key: ValueKey(products[index].id),
+        );
+      },
       separatorBuilder: (context, index) => const Divider(),
-    );
-  }
-}
-
-class _ProductCard extends StatelessWidget {
-  const _ProductCard(this.product);
-
-  final Product product;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          BigText(product.name),
-          _Tags(product: product),
-        ],
-      ),
-    );
-  }
-}
-
-class _Tags extends StatelessWidget {
-  const _Tags({
-    required this.product,
-  });
-
-  final Product product;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      children: product.tags.map(_TagWidget.new).toList(),
-    );
-  }
-}
-
-class _TagWidget extends StatelessWidget {
-  const _TagWidget(this.tag);
-
-  final Tag tag;
-
-  @override
-  Widget build(BuildContext context) {
-    const possibleColors = Colors.primaries;
-    final tagColor = possibleColors[tag.label.hashCode % possibleColors.length];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Chip(
-        backgroundColor: tagColor,
-        label: Text(tag.label),
-      ),
     );
   }
 }
