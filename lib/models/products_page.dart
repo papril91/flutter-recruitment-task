@@ -94,6 +94,17 @@ class Tag {
     required this.labelColor,
   });
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Tag && runtimeType == other.runtimeType && tag == other.tag;
+
+  @override
+  int get hashCode => tag.hashCode;
+
+  @override
+  String toString() => tag;
+
   factory Tag.fromJson(Map<String, dynamic> json) => _$TagFromJson(json);
 
   final String tag;
