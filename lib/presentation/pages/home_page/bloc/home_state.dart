@@ -10,7 +10,16 @@ class HomeState with _$HomeState {
   const factory HomeState.loading() = HomeStateLoading;
   const factory HomeState.loaded({
     @Default([]) List<ProductsPage> pages,
+    @Default([]) List<Product> products,
+    @Default(false) bool toggleFilterDrawer,
+    @Default(false) bool toggleFavoritesProductsFilter,
+    double? minPrice,
+    double? maxPrice,
+    @Default(1) int currentPageNumber,
+    List<Tag>? listOfTags,
+    List<Tag>? listOfFilterTags,
     String? scrollToProductId,
+    int? totalPages,
   }) = HomeStateLoaded;
   const factory HomeState.error({
     String? errorMessage,

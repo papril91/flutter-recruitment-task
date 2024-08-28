@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_recruitment_task/models/products_page.dart';
 import 'package:flutter_recruitment_task/presentation/pages/home_page/bloc/home_cubit.dart';
 import 'package:flutter_recruitment_task/presentation/widgets/price_range.dart';
+import 'package:flutter_recruitment_task/presentation/widgets/tag_widget.dart';
 
 class BottomDrawer extends StatelessWidget {
   const BottomDrawer({
     super.key,
     required this.isDrawerOpen,
-    required this.isFavorites,
+    this.isFavorites,
+    required this.listOfTags,
+    this.listOfFilterTags,
   });
 
   final bool isDrawerOpen;
-  final bool isFavorites;
+  final bool? isFavorites;
+  final List<Tag> listOfTags;
+  final List<Tag>? listOfFilterTags;
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +56,34 @@ class BottomDrawer extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
-                        children: [Text('Tagi:')],
+                      Text('Tagi: ${listOfFilterTags?.length ?? 0}'),
+                      SizedBox(
+                        height: 150.0,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Wrap(
+                            spacing: 8.0,
+                            runSpacing: 4.0,
+                            children: listOfTags
+                                .map(
+                                  (singleTag) => GestureDetector(
+                                    onTap: () => context
+                                        .read<HomeCubit>()
+                                        .addToFilterTags(singleTag),
+                                    child: TagWidget(
+                                      singleTag,
+                                      isSelected: listOfFilterTags
+                                              ?.contains(singleTag) ??
+                                          false,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ),
                       ),
                       Row(
                         children: [
@@ -75,9 +106,8 @@ class BottomDrawer extends StatelessWidget {
                       width: double.infinity,
                       margin: const EdgeInsets.symmetric(horizontal: 20),
                       child: ElevatedButton(
-                        onPressed: () {
-                          print('Button kliknięty!');
-                        },
+                        onPressed: () =>
+                            context.read<HomeCubit>().filterProducts(),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.yellow,
                           shape: RoundedRectangleBorder(
