@@ -8,13 +8,19 @@ class TagWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const possibleColors = Colors.primaries;
-    final tagColor = possibleColors[tag.label.hashCode % possibleColors.length];
+    Color hexToColor(String hex) {
+      hex = hex.replaceAll('#', '');
+      if (hex.length == 6) {
+        hex = 'FF$hex';
+      }
+
+      return Color(int.parse('0x$hex'));
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Chip(
-        backgroundColor: tagColor,
+        backgroundColor: hexToColor(tag.color),
         label: Text(tag.label),
       ),
     );
